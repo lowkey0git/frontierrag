@@ -1,0 +1,14 @@
+[
+  {
+    "filename": "frankenstein.txt",
+    "url": "https://www.gutenberg.org/cache/epub/84/pg84.txt",
+    "attribution": "Frankenstein; Mary Wollstonecraft Shelley; Project Gutenberg",
+    "bytes": 448885
+  },
+  {
+    "filename": "sherlock.txt",
+    "url": "https://www.gutenberg.org/cache/epub/1661/pg1661.txt",
+    "attribution": "The Adventures of Sherlock Holmes; Arthur Conan Doyle; Project Gutenberg",
+    "bytes": 607606
+  }
+]

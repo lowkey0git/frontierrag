@@ -1,0 +1,31 @@
+[
+  {
+    "question": "What is the creature's relationship to Victor Frankenstein?",
+    "expected_terms": [
+      "creature",
+      "Victor Frankenstein"
+    ],
+    "relevant_sources": [
+      "frankenstein"
+    ]
+  },
+  {
+    "question": "Who is Sherlock Holmes and what kind of work does he do?",
+    "expected_terms": [
+      "detective",
+      "Sherlock Holmes"
+    ],
+    "relevant_sources": [
+      "sherlock"
+    ]
+  },
+  {
+    "question": "What are the main events in the history of quantum computing?",
+    "expected_terms": [
+      "quantum computing"
+    ],
+    "relevant_sources": [
+      "none"
+    ]
+  }
+]

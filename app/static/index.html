@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Frontier RAG</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,sans-serif;color:#172033;background:#f4f6fb}*{box-sizing:border-box}
+body{margin:0}.wrap{max-width:980px;margin:40px auto;padding:0 18px}.hero{background:#101827;color:white;border-radius:20px;padding:28px 30px}
+h1{margin:0 0 8px;font-size:30px}.hero p{color:#c5cfdf;margin:0}.panel{background:white;border:1px solid #e1e6ef;border-radius:16px;padding:22px;margin-top:18px;box-shadow:0 8px 28px #16223a0b}
+label{display:block;font-weight:650;margin:12px 0 7px}textarea,select,input{font:inherit;border:1px solid #cbd4e1;border-radius:9px;padding:11px;width:100%;background:white}
+.row{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}button{border:0;border-radius:10px;padding:12px 18px;background:#2459d3;color:white;font-weight:700;cursor:pointer;margin-top:14px}button:disabled{opacity:.55}
+#answer{white-space:pre-wrap;line-height:1.65}.source{background:#f6f8fc;padding:12px;border-radius:10px;margin:10px 0;overflow-wrap:anywhere}.muted{color:#627087;font-size:13px}.status{margin-top:12px;color:#44536b}
+@media(max-width:650px){.row{grid-template-columns:1fr}.wrap{margin:20px auto}}
+</style></head><body><div class="wrap">
+<header class="hero"><h1>Frontier RAG</h1><p>Retrieval-grounded answers • ChromaDB + BM25 • Groq API</p></header>
+<section class="panel"><h2>Ask your indexed knowledge</h2><label for="q">Question</label><textarea id="q" rows="3" placeholder="Ask a question about the ingested documents..."></textarea>
+<div class="row"><div><label for="mode">Retrieval strategy</label><select id="mode"><option value="hybrid">Hybrid (recommended)</option><option value="dense">Dense vector only</option><option value="hyde">HyDE (extra LLM call)</option><option value="graph">Graph expansion</option><option value="agentic">Agentic decomposition</option></select></div>
+<div><label for="k">Sources</label><select id="k"><option>3</option><option selected>5</option><option>8</option><option>10</option></select></div>
+<div><label for="budget">Latency budget (ms)</label><input id="budget" type="number" value="2500" min="100"></div></div>
+<button id="ask">Ask Frontier RAG</button> <button id="ingest" type="button">Ingest local data</button><div class="status" id="status"></div></section>
+<section class="panel" id="result" hidden><h2>Answer</h2><div class="muted" id="metrics"></div><p id="answer"></p><h3>Evidence and sources</h3><div id="sources"></div></section>
+<script>
+const status=document.querySelector('#status'), ask=document.querySelector('#ask');
+document.querySelector('#ingest').onclick=async()=>{status.textContent='Ingesting files in data/raw...';try{let r=await fetch('/api/ingest',{method:'POST'}),d=await r.json();status.textContent=r.ok?JSON.stringify(d):d.detail}catch(e){status.textContent=String(e)}};
+ask.onclick=async()=>{let q=document.querySelector('#q').value.trim();if(q.length<3){status.textContent='Enter a question of at least 3 characters.';return}
+ask.disabled=true;status.textContent='Retrieving evidence and generating answer...';try{let r=await fetch('/api/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,mode:document.querySelector('#mode').value,top_k:Number(document.querySelector('#k').value),latency_budget_ms:Number(document.querySelector('#budget').value)})});let d=await r.json();if(!r.ok)throw Error(d.detail||'Request failed');document.querySelector('#result').hidden=false;document.querySelector('#answer').textContent=d.answer;document.querySelector('#metrics').textContent=`Mode: ${d.mode} • ${d.latency_ms} ms • ${d.retrieved_chunks} chunks • within budget: ${d.within_latency_budget}`;document.querySelector('#sources').innerHTML='';for(let s of d.sources){let el=document.createElement('div');el.className='source';let title=document.createElement('strong');title.textContent=`[${s.id}] ${s.source} · chunk ${s.chunk_index}`;let p=document.createElement('p');p.textContent=s.text;el.append(title,p);document.querySelector('#sources').append(el)}status.textContent='Done.'}catch(e){status.textContent=String(e)}finally{ask.disabled=false}};
+</script></div></body></html>
